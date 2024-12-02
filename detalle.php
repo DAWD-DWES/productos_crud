@@ -37,21 +37,21 @@ $bd = null;
         <div class="container mt-3">
             <?php if (isset($productoNoEncontrado)): ?>
                 <h3 class="text-center mt-2 font-weight-bold">Producto no encontrado</h3>
-                <a href="index.php" class="btn btn-warning">Volver</a>
+            <?php else: ?>
+                <div class="card text-white bg-info mt-5 mx-auto">
+                    <div class="card-header text-center text-weight-bold">
+                        <?= $producto->nombre ?>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title text-center"><?= "Codigo: {$producto->id}" ?></h5>
+                        <p class="card-text"><b>Nombre: </b><?= htmlspecialchars($producto->nombre, ENT_NOQUOTES, 'UTF-8') ?></p>
+                        <p class="card-text"><b>Nombre Corto: </b> <?= htmlspecialchars($producto->nombre_corto, ENT_NOQUOTES, 'UTF-8') ?></p>
+                        <p class="card-text"><b>Codigo Familia: </b><?= htmlspecialchars($producto->familia, ENT_NOQUOTES, 'UTF-8') ?></p>
+                        <p class="card-text"><b>PVP (€): </b><?= htmlspecialchars($producto->pvp, ENT_NOQUOTES, 'UTF-8') ?></p>
+                        <p class="card-text"><b>Descripción: </b><?= htmlspecialchars($producto->descripcion, ENT_NOQUOTES, 'UTF-8') ?></p>
+                    </div>
+                </div>
             <?php endif ?>
-            <div class="card text-white bg-info mt-5 mx-auto">
-                <div class="card-header text-center text-weight-bold">
-                    <?= $producto->nombre ?>
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title text-center"><?= "Codigo: {$producto->id}" ?></h5>
-                    <p class="card-text"><b>Nombre: </b><?= htmlspecialchars($producto->nombre, ENT_NOQUOTES, 'UTF-8') ?></p>
-                    <p class="card-text"><b>Nombre Corto: </b> <?= htmlspecialchars($producto->nombre_corto, ENT_NOQUOTES, 'UTF-8') ?></p>
-                    <p class="card-text"><b>Codigo Familia: </b><?= htmlspecialchars($producto->familia, ENT_NOQUOTES, 'UTF-8') ?></p>
-                    <p class="card-text"><b>PVP (€): </b><?= htmlspecialchars($producto->pvp, ENT_NOQUOTES, 'UTF-8') ?></p>
-                    <p class="card-text"><b>Descripción: </b><?= htmlspecialchars($producto->descripcion, ENT_NOQUOTES, 'UTF-8') ?></p>
-                </div>
-            </div>
             <div class="container mt-5 text-center">
                 <a href="index.php" class="btn btn-warning">Volver</a>
             </div>

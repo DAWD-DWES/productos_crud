@@ -7,7 +7,7 @@
  * @return bool
  */
 
-function borrarProducto(PDO $bd, string $productoId): bool {
+function borraProducto(PDO $bd, string $productoId): bool {
     $borrarProducto = "delete from productos where id=:id";
     $stmtBorrarProducto = $bd->prepare($borrarProducto);
     $resultado = $stmtBorrarProducto->execute([':id' => $productoId]);
@@ -22,7 +22,7 @@ function borrarProducto(PDO $bd, string $productoId): bool {
  * @return array|null
  */
 
-function consultaProductos(PDO $bd): ?array {
+function consultaProductos(PDO $bd): array {
     $consultaProductos = "select id, nombre from productos order by nombre";
     $stmtConsultaProductos = $bd->prepare($consultaProductos);
     $stmtConsultaProductos->execute();
@@ -39,7 +39,7 @@ function consultaProductos(PDO $bd): ?array {
  * @return object|null
  */
 
-function consultaProductoPorId(PDO $bd, string $productoId): ?object {
+function consultaProductoPorId(PDO $bd, string $productoId): object|false{
     $consulta = "select * from productos where id=:i";
     $stmtConsultaProductoPorId = $bd->prepare($consulta);
     $stmtConsultaProductoPorId->execute([':i' => $productoId]);
@@ -81,8 +81,8 @@ function insertaProducto(PDO $bd, string $nombre, string $nombreCorto, float $pv
  * @return type
  */
 
-function consultaFamilias(PDO $bd) {
-    $consultaFamilias = "select cod, nombre from familias order by nombre";
+function consultaFamilias(PDO $bd): array {
+    $consultaFamilias = "select * from familias order by nombre";
     $stmtObtenerFamilias = $bd->prepare($consultaFamilias);
     $stmtObtenerFamilias->execute();
     $resultado = $stmtObtenerFamilias->fetchAll(PDO::FETCH_OBJ);
