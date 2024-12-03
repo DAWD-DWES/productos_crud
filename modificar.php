@@ -22,7 +22,7 @@ if (filter_has_var(INPUT_POST, 'modificar')) {
     $error = array_sum(compact(["nombreErr", "nombreCortoErr", "pvpErr"])) > 0;
     if (!$error) {
         try {
-            $productoModificado = modificaProducto($bd, $id, $nombre, $nombreCorto, $pvp, $familiaCodigo, $descripcion);
+            $productoModificado = modificarProducto($bd, $id, $nombre, $nombreCorto, $pvp, $familiaCodigo, $descripcion);
         } catch (PDOException $ex) {
             if ($ex->getcode() == 23000) {
                 $errorDuplicadoNombreCorto = true;
@@ -34,7 +34,7 @@ if (filter_has_var(INPUT_POST, 'modificar')) {
 } else {
     $id = filter_input(INPUT_POST, 'id', FILTER_UNSAFE_RAW);
     try {
-        $producto = consultaProductoPorId($bd, $id);
+        $producto = consultarProductoPorId($bd, $id);
     } catch (PDOException $ex) {
         error_log("Error al recuperar información de producto " . $ex->getMessage());
         $productoNoEncontrado = true;
@@ -44,7 +44,7 @@ if (filter_has_var(INPUT_POST, 'modificar')) {
 
 if (!(isset($productoModificado) && $productoModificado)) {
     try {
-        $familias = consultaFamilias($bd);
+        $familias = consultarFamilias($bd);
     } catch (PDOException $ex) {
         error_log("Error al recuperar información de familias " . $ex->getMessage());
         $familias = [];

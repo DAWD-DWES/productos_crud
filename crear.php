@@ -22,7 +22,7 @@ if (isset($_REQUEST['crear'])) {
     $error = array_sum(compact(["nombreErr", "nombreCortoErr", "pvpErr"])) > 0;
     if (!$error){
         try {
-            $productoInsertado = insertaProducto($bd, $nombre, $nombreCorto, $pvp, $familiaCodigo, $descripcion);
+            $productoInsertado = insertarProducto($bd, $nombre, $nombreCorto, $pvp, $familiaCodigo, $descripcion);
         } catch (PDOException $ex) {
             if ($ex->getcode() == 23000) { // Clave duplicada
                 $errorDuplicadoNombreCorto = true;
@@ -34,7 +34,7 @@ if (isset($_REQUEST['crear'])) {
 }
 if (!(isset($productoInsertado) && $productoInsertado)) {
     try {
-        $familias = consultaFamilias($bd);
+        $familias = consultarFamilias($bd);
     } catch (PDOException $ex) {
         error_log("Error al recuperar información de familias " . $ex->getMessage());
         $familias = [];

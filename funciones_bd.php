@@ -7,49 +7,49 @@
  * @return bool
  */
 
-function borraProducto(PDO $bd, string $productoId): bool {
-    $borrarProducto = "delete from productos where id=:id";
-    $stmtBorrarProducto = $bd->prepare($borrarProducto);
+function borrarProducto(PDO $bd, string $productoId): bool {
+    $sqlBorrarProducto = "delete from productos where id=:id";
+    $stmtBorrarProducto = $bd->prepare($sqlBorrarProducto);
     $resultado = $stmtBorrarProducto->execute([':id' => $productoId]);
     $stmtBorrarProducto = null;
     return ($resultado);
 }
 
 /**
- * consultaProductos Obtiene los productos de la BD
+ * consultarProductos Obtiene los productos de la BD
  * 
  * @param PDO $bd
- * @return array|null
+ * @return array
  */
 
-function consultaProductos(PDO $bd): array {
-    $consultaProductos = "select id, nombre from productos order by nombre";
-    $stmtConsultaProductos = $bd->prepare($consultaProductos);
-    $stmtConsultaProductos->execute();
-    $resultado = $stmtConsultaProductos->fetchAll(PDO::FETCH_OBJ);
-    $stmtConsultaProductos = null;
+function consultarProductos(PDO $bd): array {
+    $sqlConsultarProductos = "select id, nombre from productos order by nombre";
+    $stmtConsultarProductos = $bd->prepare($sqlConsultarProductos);
+    $stmtConsultarProductos->execute();
+    $resultado = $stmtConsultarProductos->fetchAll(PDO::FETCH_OBJ);
+    $stmtConsultarProductos = null;
     return $resultado;
 }
 
 /**
- * consultaProductoPorId Obtiene los datos de un producto concreto de la BD
+ * consultarProductoPorId Obtiene los datos de un producto concreto de la BD
  * 
  * @param PDO $bd
  * @param string $productoId
- * @return object|null
+ * @return object|false
  */
 
-function consultaProductoPorId(PDO $bd, string $productoId): object|false{
-    $consulta = "select * from productos where id=:i";
-    $stmtConsultaProductoPorId = $bd->prepare($consulta);
-    $stmtConsultaProductoPorId->execute([':i' => $productoId]);
-    $resultado = $stmtConsultaProductoPorId->fetch(PDO::FETCH_OBJ);
-    $stmtConsultaProductoPorId = null;
+function consultarProductoPorId(PDO $bd, string $productoId): object|false{
+    $sqlConsultarProductoPorId = "select * from productos where id=:i";
+    $stmtConsultarProductoPorId = $bd->prepare($sqlConsultarProductoPorId);
+    $stmtConsultarProductoPorId->execute([':i' => $productoId]);
+    $resultado = $stmtConsultarProductoPorId->fetch(PDO::FETCH_OBJ);
+    $stmtConsultarProductoPorId = null;
     return $resultado;
 }
 
 /**
- * insertaProducto inserta un producto en la BD
+ * insertarProducto inserta un producto en la BD
  * 
  * @param PDO $bd
  * @param string $nombre
@@ -60,38 +60,39 @@ function consultaProductoPorId(PDO $bd, string $productoId): object|false{
  * @return bool
  */
 
-function insertaProducto(PDO $bd, string $nombre, string $nombreCorto, float $pvp, string $familia, string $descripcion): bool {
-    $insertaProducto = "insert into productos (nombre, nombre_corto, pvp, familia, descripcion) values(:nombre, :nombre_corto, :pvp, :familia, :descripcion)";
-    $stmtInsertaProducto = $bd->prepare($insertaProducto);
-    $resultado = $stmtInsertaProducto->execute([
+function insertarProducto(PDO $bd, string $nombre, string $nombreCorto, float $pvp, 
+        string $familia, string $descripcion): bool {
+    $sqlInsertarProducto = "insert into productos (nombre, nombre_corto, pvp, familia, descripcion) values(:nombre, :nombre_corto, :pvp, :familia, :descripcion)";
+    $stmtInsertarProducto = $bd->prepare($sqlInsertarProducto);
+    $resultado = $stmtInsertarProducto->execute([
         ':nombre' => $nombre,
         ':nombre_corto' => $nombreCorto,
         ':pvp' => $pvp,
         ':familia' => $familia,
         ':descripcion' => $descripcion
     ]);
-    $stmtInsertaProducto = null;
+    $stmtInsertarProducto = null;
     return $resultado;
 }
 
 /**
- * consultaFamilias Obtiene las familias de la BD
+ * consultarFamilias Obtiene las familias de la BD
  * 
  * @param PDO $bd
- * @return type
+ * @return array
  */
 
-function consultaFamilias(PDO $bd): array {
-    $consultaFamilias = "select * from familias order by nombre";
-    $stmtObtenerFamilias = $bd->prepare($consultaFamilias);
-    $stmtObtenerFamilias->execute();
-    $resultado = $stmtObtenerFamilias->fetchAll(PDO::FETCH_OBJ);
-    $stmtObtenerFamilias = null;
+function consultarFamilias(PDO $bd): array {
+    $sqlConsultarFamilias = "select * from familias order by nombre";
+    $stmtConsultarFamilias = $bd->prepare($sqlConsultarFamilias);
+    $stmtConsultarFamilias->execute();
+    $resultado = $stmtConsultarFamilias->fetchAll(PDO::FETCH_OBJ);
+    $stmtConsultarFamilias = null;
     return $resultado;
 }
 
 /**
- * modificaProducto modifica un producto en la BD
+ * modificarProducto modifica un producto en la BD
  * 
  * @param PDO $bd
  * @param string $nombre
@@ -102,10 +103,11 @@ function consultaFamilias(PDO $bd): array {
  * @return bool
  */
 
-function modificaProducto(PDO $bd, string $productoId, string $nombre, string $nombreCorto, float $pvp, string $familia, string $descripcion): bool {
-    $modificaProducto = "update productos set nombre=:nombre, nombre_corto=:nombre_corto, pvp=:pvp, familia=:familia, descripcion=:descripcion where id=:id";
-    $stmtModificaProducto = $bd->prepare($modificaProducto);
-    $resultado = $stmtModificaProducto->execute([
+function modificarProducto(PDO $bd, string $productoId, string $nombre, string $nombreCorto, float $pvp, 
+        string $familia, string $descripcion): bool {
+    $sqlModificarProducto = "update productos set nombre=:nombre, nombre_corto=:nombre_corto, pvp=:pvp, familia=:familia, descripcion=:descripcion where id=:id";
+    $stmtModificarProducto = $bd->prepare($sqlModificarProducto);
+    $resultado = $stmtModificarProducto->execute([
         ':nombre' => $nombre,
         ':nombre_corto' => $nombreCorto,
         ':pvp' => $pvp,
@@ -113,6 +115,6 @@ function modificaProducto(PDO $bd, string $productoId, string $nombre, string $n
         ':descripcion' => $descripcion,
         ':id' => $productoId
     ]);
-    $stmtModificaProducto = null;
+    $stmtModificarProducto = null;
     return $resultado;
 }

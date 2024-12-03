@@ -4,7 +4,7 @@ require_once 'funciones_bd.php';
 $bd = require_once 'conexion.php';
 
 try {
-    $productos = consultaProductos($bd);
+    $productos = consultarProductos($bd);
 } catch (PDOException $ex) {
     error_log("Error al recuperar los productos " . $ex->getMessage());
     $productos = [];

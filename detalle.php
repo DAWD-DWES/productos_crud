@@ -11,7 +11,7 @@ $bd = require_once 'conexion.php';
 $id = filter_input(INPUT_GET, 'id', FILTER_UNSAFE_RAW);
 
 try {
-    $producto = consultaProductoPorId($bd, $id);
+    $producto = consultarProductoPorId($bd, $id);
 } catch (PDOException $ex) {
     error_log("Error al recuperar información de producto " . $ex->getMessage());
     $productoNoEncontrado = true;

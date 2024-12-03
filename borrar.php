@@ -11,7 +11,7 @@ $bd = require_once 'conexion.php';
 $id = filter_input(INPUT_POST, 'id', FILTER_UNSAFE_RAW);
 
 try {
-    $productoBorrado = borraProducto($bd, $id);
+    $productoBorrado = borrarProducto($bd, $id);
 } catch (PDOException $ex) {
     error_log("Error al borrar el producto" . $ex->getMessage());
     $productoBorrado = false;
