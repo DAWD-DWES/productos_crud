@@ -1,5 +1,5 @@
 <?php
-require_once 'error_handler.php';
+include_once 'error_handler.php';
 require_once 'funciones_bd.php';
 $bd = require_once 'conexion.php';
 
@@ -8,7 +8,7 @@ try {
 } catch (PDOException $ex) {
     error_log("Error al recuperar los productos " . $ex->getMessage());
     $productos = [];
-} 
+}
 
 $bd = null;
 ?>
