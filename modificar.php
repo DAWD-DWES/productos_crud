@@ -37,12 +37,12 @@ if (filter_has_var(INPUT_POST, 'modificar')) {
         $producto = consultarProductoPorId($bd, $id);
     } catch (PDOException $ex) {
         error_log("Error al recuperar información de producto " . $ex->getMessage());
-        $productoNoEncontrado = true;
+        $productoEncontrado = false;
     }
 }
 
 
-if (!(isset($productoModificado) && $productoModificado)) {
+if ($productoModificado ?? true) {
     try {
         $familias = consultarFamilias($bd);
     } catch (PDOException $ex) {
@@ -75,7 +75,7 @@ $bd = null;
             <?php elseif (!($productoModificado ?? true)): ?>
                 <h3 class="text-center mt-2 font-weight-bold">Ha habido un problema para modificar el producto</h3>
                 <a href="index.php" class="btn btn-warning">Volver</a>
-            <?php elseif ($productoNoEncontrado ?? false) : ?>
+            <?php elseif (!($productoEncontrado ?? true)) : ?>
                 <h3 class="text-center mt-2 font-weight-bold">Ha habido un problema para encontrar el producto que se quiere modificar</h3>
                 <a href="index.php" class="btn btn-warning">Volver</a>
             <?php else: ?>

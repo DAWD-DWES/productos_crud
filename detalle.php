@@ -35,7 +35,7 @@ $bd = null;
     <body class="bg-info">
         <h3 class="text-center mt-2 font-weight-bold">Detalle Producto</h3>
         <div class="container mt-3">
-            <?php if (isset($productoNoEncontrado)): ?>
+            <?php if (!($productoEncontrado ?? true)): ?>
                 <h3 class="text-center mt-2 font-weight-bold">Producto no encontrado</h3>
             <?php else: ?>
                 <div class="card text-white bg-info mt-5 mx-auto">

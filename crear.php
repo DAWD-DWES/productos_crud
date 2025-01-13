@@ -7,7 +7,7 @@ require_once 'error_handler.php';
 require_once 'funciones_bd.php';
 $bd = require_once 'conexion.php';
 
-if (isset($_REQUEST['crear'])) {
+if (filter_has_var(INPUT_POST, 'crear')) {
 //recogemos los datos del formulario
     $nombre = ucwords(trim(filter_input(INPUT_POST, 'nombre', FILTER_UNSAFE_RAW)));
     $nombreErr = filter_var($nombre, FILTER_VALIDATE_REGEXP,
@@ -20,7 +20,7 @@ if (isset($_REQUEST['crear'])) {
     $descripcion = trim(filter_input(INPUT_POST, 'descripcion', FILTER_UNSAFE_RAW));
     $familiaCodigo = filter_input(INPUT_POST, 'familia_codigo', FILTER_UNSAFE_RAW);
     $error = array_sum(compact(["nombreErr", "nombreCortoErr", "pvpErr"])) > 0;
-    if (!$error){
+    if (!$error) {
         try {
             $productoInsertado = insertarProducto($bd, $nombre, $nombreCorto, $pvp, $familiaCodigo, $descripcion);
         } catch (PDOException $ex) {
