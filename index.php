@@ -26,7 +26,7 @@ $bd = null;
         <title>CRUD Productos</title>
     </head>
     <body class="bg-info">
-        <h3 class="text-center mt-2 font-weight-bold">Gestión de Productos</h3>
+        <h3 class="text-center mt-2 fw-bold">Gestión de Productos</h3>
         <div class="container mt-3">
             <a href="crear.php?pet_crear" class='btn btn-success mt-2 mb-2'>Crear</a>
             <table class="table table-striped table-dark">
@@ -42,13 +42,13 @@ $bd = null;
                     <?php foreach ($productos as $producto): ?>
                         <tr class='text-center'>
                             <td>
-                                <a class="btn btn-warning mr2" href="detalle.php?pet_detalle&id=<?= $producto->id ?>">Detalle</a>
+                                <a class="btn btn-warning me-2" href="detalle.php?pet_detalle&id=<?= $producto->id ?>">Detalle</a>
                             </td>
                             <td><?= $producto->id ?></td>
                             <td><?= htmlspecialchars($producto->nombre, ENT_NOQUOTES, 'UTF-8') ?></td>
                             <td>
                                 <form action="borrar.php" method='POST' class="d-inline">
-                                    <input type="submit" class="btn btn-warning m2" value="Actualizar" name="pet_modificar" formaction="modificar.php">
+                                    <input type="submit" class="btn btn-warning m-2" value="Actualizar" name="pet_modificar" formaction="modificar.php">
                                     <input type="hidden" name="id" value="<?= $producto->id ?>"> <!-- mandamos el código del producto a borrar -->
                                     <input type="submit" onclick="return confirm('¿Borrar Producto?')" class="btn btn-danger" value="Borrar" name="borrar">
                                 </form>
@@ -60,4 +60,3 @@ $bd = null;
         </div>
     </body>
 </html>
-

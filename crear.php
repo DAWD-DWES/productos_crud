@@ -7,19 +7,27 @@ require_once 'error_handler.php';
 require_once 'funciones_bd.php';
 $bd = require_once 'conexion.php';
 
+define('NOMBRE_INVALIDO', '**Nombre inválido');
+define('NOMBRE_CORTO_INVALIDO', '**Nombre corto inválido');
+define('NOMBRE_CORTO_DUPLICADO', '**Nombre corto duplicado');
+define('PVP_INVALIDO', '**PVP inválido');
+define('DESCRIPCION_INVALIDO', '**Descripción inválida');
+
 if (filter_has_var(INPUT_POST, 'crear')) {
 //recogemos los datos del formulario
     $nombre = ucwords(trim(filter_input(INPUT_POST, 'nombre', FILTER_UNSAFE_RAW)));
     $nombreErr = filter_var($nombre, FILTER_VALIDATE_REGEXP,
-                    ['options' => ['regexp' => "/^[\w\s\-_]{2,100}$/"]]) === false;
+                    ['options' => ['regexp' => "/^[\w\s\-_áéíóúñ]{2,100}$/"]]) === false;
     $nombreCorto = strtoupper(trim(filter_input(INPUT_POST, 'nombre_corto', FILTER_UNSAFE_RAW)));
     $nombreCortoErr = filter_var($nombreCorto, FILTER_VALIDATE_REGEXP,
-                    ['options' => ['regexp' => "/^[a-zA-Z0-9]{2,15}$/"]]) === false;
+                    ['options' => ['regexp' => "/^[a-zA-Z0-9áéíóúñ]{2,15}$/"]]) === false;
     $pvp = filter_input(INPUT_POST, 'pvp', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
     $pvpErr = filter_var($pvp, FILTER_VALIDATE_FLOAT, ["options" => ["min_range" => 0]]) === false;
     $descripcion = trim(filter_input(INPUT_POST, 'descripcion', FILTER_UNSAFE_RAW));
+    $descripcionErr = filter_var($descripcion, FILTER_VALIDATE_REGEXP,
+                    ['options' => ['regexp' => "/^[\w\s\-_áéíóúñ]{0,200}$/"]]) === false;
     $familiaCodigo = filter_input(INPUT_POST, 'familia_codigo', FILTER_UNSAFE_RAW);
-    $error = array_sum(compact(["nombreErr", "nombreCortoErr", "pvpErr"])) > 0;
+    $error = array_sum(compact(["nombreErr", "nombreCortoErr", "pvpErr", "descripcionErr"])) > 0;
     if (!$error) {
         try {
             $productoInsertado = insertarProducto($bd, $nombre, $nombreCorto, $pvp, $familiaCodigo, $descripcion);
@@ -32,7 +40,7 @@ if (filter_has_var(INPUT_POST, 'crear')) {
         }
     }
 }
-if (!(isset($productoInsertado) && $productoInsertado)) {
+if ($error ?? true) {
     try {
         $familias = consultarFamilias($bd);
     } catch (PDOException $ex) {
@@ -57,7 +65,7 @@ $bd = null;
         <title>Crear Producto</title>
     </head>
     <body class="bg-info">
-        <h3 class="text-center mt-2 font-weight-bold">Crear Producto</h3>
+        <h3 class="text-center mt-2 fw-bold">Crear Producto</h3>
         <div class="container mt-3">
             <?php if ($productoInsertado ?? false): ?>
                 <h3 class="text-center mt-2 font-weight-bold">Producto creado con éxito</h3>
@@ -67,58 +75,62 @@ $bd = null;
                 <a href="index.php" class="btn btn-warning">Volver</a>
             <?php else: ?>
                 <form name="crear" method="POST" action="<?= $_SERVER['PHP_SELF'] ?>">
-                    <div class="row">
-                        <div class="col-md-6">
+                    <div class="row g-3">
+                        <div class="col-md-6 align-items-center mb-3">
                             <label for="nombre" class="form-label">Nombre: </label>
-                            <input type="text" class="form-control <?= (isset($nombreErr) ? (($nombreErr) ? "is-invalid" : "is-valid") : "") ?>" id="nombre" placeholder="Nombre"
-                                   name="nombre" value="<?= htmlspecialchars($nombre ?? '', ENT_NOQUOTES, 'UTF-8') ?>">
-                            <div class="col-sm-10 invalid-feedback">
-                                <p>Introduce nombre correcto</p>
+                            <input type="text" class="form-control <?= (isset($nombreErr) ? (($nombreErr) ? "is-invalid" : "is-valid") : "") ?>" 
+                                   id="nombre" placeholder="Nombre" name="nombre" 
+                                   value="<?= htmlspecialchars($nombre ?? '', ENT_NOQUOTES, 'UTF-8') ?>">
+                            <div class="invalid-feedback">
+                                <p><?= NOMBRE_INVALIDO ?></p>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 align-items-center mb-3">
                             <label for="nombre_corto" class="form-label">Nombre Corto: </label>
                             <input type="text" class="form-control <?= (isset($nombreCortoErr) ? (($nombreCortoErr) ? "is-invalid" : "is-valid") : (isset($errorDuplicadoNombreCorto) ? "in-invalid" : "")) ?>" id="nombre_corto" placeholder="Nombre Corto"
                                    name="nombre_corto" value="<?= htmlspecialchars($nombreCorto ?? '', ENT_NOQUOTES, 'UTF-8') ?>">
-                            <div class="col-sm-10 invalid-feedback">
-                                <p><?= (isset($errorDuplicadoNombreCorto) && $errorDuplicadoNombreCorto) ? "Nombre corto duplicado" : "Introduce nombre corto correcto" ?></p>
+                            <div class="invalid-feedback">
+                                <p><?= (isset($errorDuplicadoNombreCorto) && $errorDuplicadoNombreCorto) ? NOMBRE_CORTO_DUPLICADO : NOMBRE_CORTO_INVALIDO ?></p>
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
+                    <div class="row g-3">
+                        <div class="col-md-6 align-items-center mb-3">
                             <label for="pvp" class="form-label">Precio (€): </label>
                             <input type="number" class="form-control <?= (isset($pvpErr) ? ($pvpErr ? "is-invalid" : "is-valid") : "") ?>" id="pvp" placeholder="Precio (€)"
-                                   name="pvp" min="0" step="0.01" value="<?= htmlspecialchars($pvp, ENT_NOQUOTES, 'UTF-8') ?>">
-                            <div class="col-sm-10 invalid-feedback">
-                                <p>Introduce un precio correcto</p>
+                                   name="pvp" min="0" step="0.01" value="<?= htmlspecialchars($pvp ?? '', ENT_NOQUOTES, 'UTF-8') ?>">
+                            <div class="invalid-feedback">
+                                <p><?= PVP_INVALIDO ?></p>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 align-items-center mb-3">
                             <label for="familia" class="form-label">Familia: </label>
                             <select id="familia" class="form-control" name="familia_codigo">
                                 <?php foreach ($familias as $familia): ?>
-                                    <option value='<?= $familia->cod ?>' <?= (isset($familiaCodigo) && $familia->cod == $familiaCodigo) ? "selected" : "" ?>><?= $familia->nombre ?></option>
+                                    <option value='<?= $familia->cod ?>' 
+                                            <?= (isset($familiaCodigo) && $familia->cod == $familiaCodigo) ? "selected" : "" ?>>
+                                        <?= $familia->nombre ?></option>
                                 <?php endforeach ?>
                             </select>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="col-md-9">
-                            <label for="descripcion" class="form-label">Descripción: </label>
-                            <textarea class="form-control" name="descripcion" id="d" rows="12"> <?= htmlspecialchars($descripcion ?? '', ENT_NOQUOTES, 'UTF-8') ?></textarea>
+                            <label for="descripcion">Descripción</label>
+                            <textarea class="form-control <?= (isset($descripcionErr) ? (($descripcionErr) ? "is-invalid" : "is-valid") : "") ?>"
+                                      id="descripcion" name="descripcion" placeholder="Descripción" rows="12" >
+                                          <?= htmlspecialchars($descripcion ?? '', ENT_NOQUOTES, 'UTF-8') ?>
+                            </textarea>
+                            <div class="invalid-feedback">
+                                <p><?= DESCRIPCION_INVALIDO ?></p>
+                            </div>
                         </div>
                     </div>
                     <input type="submit" class="btn btn-primary m-3" name="crear" value="Crear">
-                    <input type="reset" value="Limpiar" class="btn btn-success m-3" onclick="this.querySelectorAll('input[type=text]').forEach(function (input, i) {
-                                    input.value = '';
-                                })">
-                    <input type="reset" value="Limpiar" class="btn btn-success mr-3">
+                    <input type="reset" value="Limpiar" class="btn btn-success me-3">
                     <a href="index.php" class="btn btn-warning">Volver</a>
                 </form>
             <?php endif ?>
         </div>
     </body>
 </html>
-
-

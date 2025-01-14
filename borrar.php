@@ -1,5 +1,7 @@
 <?php
 if (!filter_has_var(INPUT_POST, 'borrar')) {
+    //si no me llega el código del producto a borrar
+    //nos vamos a index.php
     header('Location:index.php');
     die;
 }
@@ -33,9 +35,9 @@ $bd = null;
         <title>Borrar Producto</title>
     </head>
     <body class="bg-info">
-        <h3 class="text-center mt-2 font-weight-bold">Borrar Producto</h3>
+        <h3 class="text-center mt-2 fw-bold">Borrar Producto</h3>
         <div class="container mt-3">
-            <h3 class="text-center mt-2 font-weight-bold">
+            <h3 class="text-center mt-2 fw-bold">
                 <?= ($productoBorrado) ? "Producto borrado con éxito" : "Ha habido un problema para borrar el producto" ?>
             </h3>
             <a href="index.php" class="btn btn-warning">Volver</a>
