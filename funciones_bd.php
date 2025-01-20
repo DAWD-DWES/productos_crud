@@ -1,4 +1,5 @@
 <?php
+
 /**
  * borrarProducto borra un producto correspondiente a un producto Id de la BD
  * 
@@ -6,7 +7,6 @@
  * @param string $productoId
  * @return bool
  */
-
 function borrarProducto(PDO $bd, string $productoId): bool {
     $sqlBorrarProducto = "delete from productos where id=:id";
     $stmtBorrarProducto = $bd->prepare($sqlBorrarProducto);
@@ -21,7 +21,6 @@ function borrarProducto(PDO $bd, string $productoId): bool {
  * @param PDO $bd
  * @return array
  */
-
 function consultarProductos(PDO $bd): array {
     $sqlConsultarProductos = "select id, nombre from productos order by nombre";
     $stmtConsultarProductos = $bd->prepare($sqlConsultarProductos);
@@ -38,8 +37,7 @@ function consultarProductos(PDO $bd): array {
  * @param string $productoId
  * @return object|false
  */
-
-function consultarProductoPorId(PDO $bd, string $productoId): object|false{
+function consultarProductoPorId(PDO $bd, string $productoId): object|false {
     $sqlConsultarProductoPorId = "select * from productos where id=:i";
     $stmtConsultarProductoPorId = $bd->prepare($sqlConsultarProductoPorId);
     $stmtConsultarProductoPorId->execute([':i' => $productoId]);
@@ -59,8 +57,7 @@ function consultarProductoPorId(PDO $bd, string $productoId): object|false{
  * @param string $descripcion
  * @return bool
  */
-
-function insertarProducto(PDO $bd, string $nombre, string $nombreCorto, float $pvp, 
+function insertarProducto(PDO $bd, string $nombre, string $nombreCorto, float $pvp,
         string $familia, string $descripcion): bool {
     $sqlInsertarProducto = "insert into productos (nombre, nombre_corto, pvp, familia, descripcion) values(:nombre, :nombre_corto, :pvp, :familia, :descripcion)";
     $stmtInsertarProducto = $bd->prepare($sqlInsertarProducto);
@@ -81,7 +78,6 @@ function insertarProducto(PDO $bd, string $nombre, string $nombreCorto, float $p
  * @param PDO $bd
  * @return array
  */
-
 function consultarFamilias(PDO $bd): array {
     $sqlConsultarFamilias = "select * from familias order by nombre";
     $stmtConsultarFamilias = $bd->prepare($sqlConsultarFamilias);
@@ -102,8 +98,7 @@ function consultarFamilias(PDO $bd): array {
  * @param string $descripcion
  * @return bool
  */
-
-function modificarProducto(PDO $bd, string $productoId, string $nombre, string $nombreCorto, float $pvp, 
+function modificarProducto(PDO $bd, string $productoId, string $nombre, string $nombreCorto, float $pvp,
         string $familia, string $descripcion): bool {
     $sqlModificarProducto = "update productos set nombre=:nombre, nombre_corto=:nombre_corto, pvp=:pvp, familia=:familia, descripcion=:descripcion where id=:id";
     $stmtModificarProducto = $bd->prepare($sqlModificarProducto);
@@ -117,4 +112,23 @@ function modificarProducto(PDO $bd, string $productoId, string $nombre, string $
     ]);
     $stmtModificarProducto = null;
     return $resultado;
+}
+
+/**
+ * existeNombreCortoProducto comprueba que el nombre corto no exista
+ * 
+ * @param PDO $bd
+ * @param string $nombreCorto
+ * @return bool
+ */
+function existeNombreCortoProducto(PDO $bd, string $nombreCorto, int $id = null): bool {
+    $sqlExisteNombreCortoProducto = "select 1 from productos where nombre_corto = :nombre_corto " . ($id ? 'and id != :id' : '') . " LIMIT 1;";
+    $stmtExisteNombreCortoProducto = $bd->prepare($sqlExisteNombreCortoProducto);
+    $params = [':nombre_corto' => $nombreCorto];
+    if ($id) {
+        $params[':id'] = $id;
+    }
+    $stmtExisteNombreCortoProducto->execute($params);
+    $existe = (bool) $stmtExisteNombreCortoProducto->fetch();
+    return $existe;
 }

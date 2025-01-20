@@ -14,28 +14,34 @@ define('PVP_INVALIDO', '**PVP inválido');
 define('DESCRIPCION_INVALIDO', '**Descripción inválida');
 
 if (filter_has_var(INPUT_POST, 'modificar')) {
-    //recogemos los datos del formulario
+//recogemos los datos del formulario
+    $id = filter_input(INPUT_POST, 'id', FILTER_UNSAFE_RAW);
     $nombre = ucwords(trim(filter_input(INPUT_POST, 'nombre', FILTER_UNSAFE_RAW)));
     $nombreErr = filter_var($nombre, FILTER_VALIDATE_REGEXP,
                     ['options' => ['regexp' => "/^[\w\s\-_áéíóúñ]{2,100}$/"]]) === false;
     $nombreCorto = strtoupper(trim(filter_input(INPUT_POST, 'nombre_corto', FILTER_UNSAFE_RAW)));
     $nombreCortoErr = filter_var($nombreCorto, FILTER_VALIDATE_REGEXP,
                     ['options' => ['regexp' => "/^[a-zA-Z0-9áéíóúñ]{2,15}$/"]]) === false;
+    $errorDuplicadoNombreCorto = false;
+    if (!$nombreCortoErr) {
+        try {
+            $errorDuplicadoNombreCorto = existeNombreCortoProducto($bd, $nombreCorto, $id);
+        } catch (PDOException $ex) {
+            error_log("Error al comprobar el nombre corto " . $ex->getMessage());
+            $errorDuplicadoNombreCorto = true;
+        }
+    }
     $pvp = filter_input(INPUT_POST, 'pvp', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
     $pvpErr = filter_var($pvp, FILTER_VALIDATE_FLOAT, ["options" => ["min_range" => 0]]) === false;
     $descripcion = trim(filter_input(INPUT_POST, 'descripcion', FILTER_UNSAFE_RAW));
     $descripcionErr = filter_var($descripcion, FILTER_VALIDATE_REGEXP,
                     ['options' => ['regexp' => "/^[\w\s\-_áéíóúñ]{0,200}$/"]]) === false;
     $familiaCodigo = filter_input(INPUT_POST, 'familia_codigo', FILTER_UNSAFE_RAW);
-    $id = filter_input(INPUT_POST, 'id', FILTER_UNSAFE_RAW);
-    $error = array_sum(compact(["nombreErr", "nombreCortoErr", "pvpErr", "descripcionErr"])) > 0;
+    $error = array_sum(compact(["nombreErr", "nombreCortoErr", "pvpErr", "descripcionErr", "errorDuplicadoNombreCorto"])) > 0;
     if (!$error) {
         try {
             $productoModificado = modificarProducto($bd, $id, $nombre, $nombreCorto, $pvp, $familiaCodigo, $descripcion);
         } catch (PDOException $ex) {
-            if ($ex->getcode() == 23000) {
-                $errorDuplicadoNombreCorto = true;
-            }
             error_log("Error al modificar el producto " . $ex->getMessage());
             $productoModificado = false;
         }
@@ -83,10 +89,6 @@ $bd = null;
                 <a href="index.php" class="btn btn-warning">Volver</a>
             <?php elseif (!($productoModificado ?? true)): ?>
                 <h3 class="text-center mt-2 fw-bold">Ha habido un problema para modificar el producto</h3>
-                <a href="index.php" class="btn btn-warning">Volver</a>
-            <?php elseif (!($productoEncontrado ?? true)) : ?>
-                <h3 class="text-center mt-2 fw-bold">Ha habido un problema para encontrar el producto que se quiere modificar</h3>
-                <a href="index.php" class="btn btn-warning">Volver</a>
             <?php else: ?>
                 <form method="POST" action="<?= "{$_SERVER['PHP_SELF']}" ?>">
                     <div class="row g-3">
@@ -102,11 +104,14 @@ $bd = null;
                         </div>
                         <div class="col-md-6 align-items-center mb-3">
                             <label for="nombre_corto align-items-center">Nombre Corto</label>
-                            <input type="text" class="form-control <?= (isset($nombreCortoErr) || isset($errorDuplicadoNombreCorto) ? (($nombreCortoErr ?? $errorDuplicadoNombreCorto ?? false) ? "is-invalid" : "is-valid") : "") ?>"
+                            <input type="text" class="form-control <?= (isset($nombreCortoErr) ? (($nombreCortoErr || ($errorDuplicadoNombreCorto ?? false)) ? "is-invalid" : "is-valid") : "") ?>"
                                    id="nombre_corto" placeholder="Nombre corto" name="nombre_corto"
                                    value = "<?= htmlspecialchars($nombreCorto ?? $producto->nombre_corto ?? '', ENT_NOQUOTES, 'UTF-8') ?>" >
                             <div class="invalid-feedback">
-                                <p><?= isset($errorDuplicadoNombreCorto) ? NOMBRE_CORTO_DUPLICADO : NOMBRE_CORTO_INVALIDO ?></p>
+                                <p><?= match (true){
+                                    $nombreCortoErr ?? true => NOMBRE_CORTO_INVALIDO,
+                                    $errorDuplicadoNombreCorto ?? false => NOMBRE_CORTO_DUPLICADO,
+                                    default => ''} ?></p>
                             </div>
                         </div>
                     </div>
