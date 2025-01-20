@@ -11,7 +11,6 @@ function borrarProducto(PDO $bd, string $productoId): bool {
     $sqlBorrarProducto = "delete from productos where id=:id";
     $stmtBorrarProducto = $bd->prepare($sqlBorrarProducto);
     $resultado = $stmtBorrarProducto->execute([':id' => $productoId]);
-    $stmtBorrarProducto = null;
     return ($resultado);
 }
 
@@ -26,7 +25,6 @@ function consultarProductos(PDO $bd): array {
     $stmtConsultarProductos = $bd->prepare($sqlConsultarProductos);
     $stmtConsultarProductos->execute();
     $resultado = $stmtConsultarProductos->fetchAll(PDO::FETCH_OBJ);
-    $stmtConsultarProductos = null;
     return $resultado;
 }
 
@@ -42,7 +40,6 @@ function consultarProductoPorId(PDO $bd, string $productoId): object|false {
     $stmtConsultarProductoPorId = $bd->prepare($sqlConsultarProductoPorId);
     $stmtConsultarProductoPorId->execute([':i' => $productoId]);
     $resultado = $stmtConsultarProductoPorId->fetch(PDO::FETCH_OBJ);
-    $stmtConsultarProductoPorId = null;
     return $resultado;
 }
 
@@ -68,7 +65,6 @@ function insertarProducto(PDO $bd, string $nombre, string $nombreCorto, float $p
         ':familia' => $familia,
         ':descripcion' => $descripcion
     ]);
-    $stmtInsertarProducto = null;
     return $resultado;
 }
 
@@ -83,7 +79,6 @@ function consultarFamilias(PDO $bd): array {
     $stmtConsultarFamilias = $bd->prepare($sqlConsultarFamilias);
     $stmtConsultarFamilias->execute();
     $resultado = $stmtConsultarFamilias->fetchAll(PDO::FETCH_OBJ);
-    $stmtConsultarFamilias = null;
     return $resultado;
 }
 
@@ -110,6 +105,5 @@ function modificarProducto(PDO $bd, string $productoId, string $nombre, string $
         ':descripcion' => $descripcion,
         ':id' => $productoId
     ]);
-    $stmtModificarProducto = null;
     return $resultado;
 }

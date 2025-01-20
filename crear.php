@@ -5,27 +5,23 @@ if (!(filter_has_var(INPUT_GET, 'pet_crear') || filter_has_var(INPUT_POST, 'crea
 }
 require_once 'error_handler.php';
 require_once 'funciones_bd.php';
+require_once 'exp_reg.php';
+require_once 'mensajes_error.php';
 $bd = require_once 'conexion.php';
-
-define('NOMBRE_INVALIDO', '**Nombre inválido');
-define('NOMBRE_CORTO_INVALIDO', '**Nombre corto inválido');
-define('NOMBRE_CORTO_DUPLICADO', '**Nombre corto duplicado');
-define('PVP_INVALIDO', '**PVP inválido');
-define('DESCRIPCION_INVALIDO', '**Descripción inválida');
 
 if (filter_has_var(INPUT_POST, 'crear')) {
 //recogemos los datos del formulario
     $nombre = ucwords(trim(filter_input(INPUT_POST, 'nombre', FILTER_UNSAFE_RAW)));
     $nombreErr = filter_var($nombre, FILTER_VALIDATE_REGEXP,
-                    ['options' => ['regexp' => "/^[\w\s\-_áéíóúñ]{2,100}$/"]]) === false;
+                    ['options' => ['regexp' => REGEXP_NOMBRE]]) === false;
     $nombreCorto = strtoupper(trim(filter_input(INPUT_POST, 'nombre_corto', FILTER_UNSAFE_RAW)));
     $nombreCortoErr = filter_var($nombreCorto, FILTER_VALIDATE_REGEXP,
-                    ['options' => ['regexp' => "/^[a-zA-Z0-9áéíóúñ]{2,15}$/"]]) === false;
+                    ['options' => ['regexp' => REGEXP_NOMBRE_CORTO]]) === false;
     $pvp = filter_input(INPUT_POST, 'pvp', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
     $pvpErr = filter_var($pvp, FILTER_VALIDATE_FLOAT, ["options" => ["min_range" => 0]]) === false;
     $descripcion = trim(filter_input(INPUT_POST, 'descripcion', FILTER_UNSAFE_RAW));
     $descripcionErr = filter_var($descripcion, FILTER_VALIDATE_REGEXP,
-                    ['options' => ['regexp' => "/^[\w\s\-_áéíóúñ]{0,200}$/"]]) === false;
+                    ['options' => ['regexp' => REGEXP_DESCRIPCION]]) === false;
     $familiaCodigo = filter_input(INPUT_POST, 'familia_codigo', FILTER_UNSAFE_RAW);
     $error = array_sum(compact(["nombreErr", "nombreCortoErr", "pvpErr", "descripcionErr"])) > 0;
     if (!$error) {
@@ -40,7 +36,8 @@ if (filter_has_var(INPUT_POST, 'crear')) {
         }
     }
 }
-if ($errorDuplicadoNombreCorto ?? $error ?? true) {
+
+if (!($productoInsertado ?? false)) {
     try {
         $familias = consultarFamilias($bd);
     } catch (PDOException $ex) {
@@ -91,12 +88,12 @@ $bd = null;
                                    name="nombre_corto" value="<?= htmlspecialchars($nombreCorto ?? '', ENT_NOQUOTES, 'UTF-8') ?>">
                             <div class="invalid-feedback">
                                 <p><?=
-                                    match (true) {
-                                        $nombreCortoErr ?? true => NOMBRE_CORTO_INVALIDO,
-                                        $errorDuplicadoNombreCorto ?? false => NOMBRE_CORTO_DUPLICADO,
-                                        default => ''
-                                    }
-                                    ?></p>
+            match (true) {
+                $nombreCortoErr ?? false => NOMBRE_CORTO_INVALIDO,
+                $errorDuplicadoNombreCorto ?? false => NOMBRE_CORTO_DUPLICADO,
+                default => ''
+            }
+                ?></p>
                             </div>
                         </div>
                     </div>
@@ -115,8 +112,8 @@ $bd = null;
                                 <?php foreach ($familias as $familia): ?>
                                     <option value='<?= $familia->cod ?>' 
                                             <?= (isset($familiaCodigo) && $familia->cod == $familiaCodigo) ? "selected" : "" ?>>
-                                        <?= $familia->nombre ?></option>
-                                <?php endforeach ?>
+                                            <?= $familia->nombre ?></option>
+                                    <?php endforeach ?>
                             </select>
                         </div>
                     </div>
@@ -133,7 +130,9 @@ $bd = null;
                         </div>
                     </div>
                     <input type="submit" class="btn btn-primary m-3" name="crear" value="Crear">
-                    <input type="reset" value="Limpiar" class="btn btn-success me-3">
+                    <input type="reset" value="Limpiar" class="btn btn-success m-3" onclick="this.querySelectorAll('input[type=text]').forEach(function (input, i) {
+                                    input.value = '';
+                                })">
                     <a href="index.php" class="btn btn-warning">Volver</a>
                 </form>
             <?php endif ?>

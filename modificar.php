@@ -5,29 +5,25 @@ if (!(filter_has_var(INPUT_POST, 'pet_modificar') || filter_has_var(INPUT_POST, 
 }
 require_once 'error_handler.php';
 require_once 'funciones_bd.php';
+require_once 'exp_reg.php';
+require_once 'mensajes_error.php';
 $bd = require_once 'conexion.php';
-
-define('NOMBRE_INVALIDO', '**Nombre inválido');
-define('NOMBRE_CORTO_INVALIDO', '**Nombre corto inválido');
-define('NOMBRE_CORTO_DUPLICADO', '**Nombre corto duplicado');
-define('PVP_INVALIDO', '**PVP inválido');
-define('DESCRIPCION_INVALIDO', '**Descripción inválida');
 
 if (filter_has_var(INPUT_POST, 'modificar')) {
 //recogemos los datos del formulario
     $id = filter_input(INPUT_POST, 'id', FILTER_UNSAFE_RAW);
     $nombre = ucwords(trim(filter_input(INPUT_POST, 'nombre', FILTER_UNSAFE_RAW)));
     $nombreErr = filter_var($nombre, FILTER_VALIDATE_REGEXP,
-                    ['options' => ['regexp' => "/^[\w\s\-_áéíóúñ]{2,100}$/"]]) === false;
+                    ['options' => ['regexp' => REGEXP_NOMBRE]]) === false;
     $nombreCorto = strtoupper(trim(filter_input(INPUT_POST, 'nombre_corto', FILTER_UNSAFE_RAW)));
     $nombreCortoErr = filter_var($nombreCorto, FILTER_VALIDATE_REGEXP,
-                    ['options' => ['regexp' => "/^[a-zA-Z0-9áéíóúñ]{2,15}$/"]]) === false;
+                    ['options' => ['regexp' => REGEXP_NOMBRE_CORTO]]) === false;
     $pvp = filter_input(INPUT_POST, 'pvp', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
     $pvpErr = filter_var($pvp, FILTER_VALIDATE_FLOAT, ["options" => ["min_range" => 0]]) === false;
     $descripcion = trim(filter_input(INPUT_POST, 'descripcion', FILTER_UNSAFE_RAW));
-  //  $descripcionErr = filter_var($descripcion, FILTER_VALIDATE_REGEXP,
-   //                 ['options' => ['regexp' => "/^.*$/"]]) === false;
-    $descripcionErr = false;
+    $descripcionErr = filter_var($descripcion, FILTER_VALIDATE_REGEXP,
+                    ['options' => ['regexp' => REGEXP_DESCRIPCION]]) === false;
+    // $descripcionErr = false;
     $familiaCodigo = filter_input(INPUT_POST, 'familia_codigo', FILTER_UNSAFE_RAW);
     $error = array_sum(compact(["nombreErr", "nombreCortoErr", "pvpErr", "descripcionErr"])) > 0;
     if (!$error) {
@@ -52,7 +48,7 @@ if (filter_has_var(INPUT_POST, 'modificar')) {
 }
 
 
-if ($errorDuplicadoNombreCorto ?? $error ?? true) {
+if (!($productoModificado ?? false)) {
     try {
         $familias = consultarFamilias($bd);
     } catch (PDOException $ex) {
@@ -105,7 +101,7 @@ $bd = null;
                             <div class="invalid-feedback">
                                 <p><?=
                                     match (true) {
-                                        $nombreCortoErr ?? true => NOMBRE_CORTO_INVALIDO,
+                                        $nombreCortoErr ?? false => NOMBRE_CORTO_INVALIDO,
                                         $errorDuplicadoNombreCorto ?? false => NOMBRE_CORTO_DUPLICADO,
                                         default => ''
                                     }
