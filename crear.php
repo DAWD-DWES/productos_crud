@@ -21,32 +21,26 @@ if (filter_has_var(INPUT_POST, 'crear')) {
     $nombreCorto = strtoupper(trim(filter_input(INPUT_POST, 'nombre_corto', FILTER_UNSAFE_RAW)));
     $nombreCortoErr = filter_var($nombreCorto, FILTER_VALIDATE_REGEXP,
                     ['options' => ['regexp' => "/^[a-zA-Z0-9áéíóúñ]{2,15}$/"]]) === false;
-    $errorDuplicadoNombreCorto = false;
-    if (!$nombreCortoErr) {
-        try {
-            $errorDuplicadoNombreCorto = existeNombreCortoProducto($bd, $nombreCorto);
-        } catch (PDOException $ex) {
-            error_log("Error al comprobar el nombre corto " . $ex->getMessage());
-            $errorDuplicadoNombreCorto = true;
-        }
-    }
     $pvp = filter_input(INPUT_POST, 'pvp', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
     $pvpErr = filter_var($pvp, FILTER_VALIDATE_FLOAT, ["options" => ["min_range" => 0]]) === false;
     $descripcion = trim(filter_input(INPUT_POST, 'descripcion', FILTER_UNSAFE_RAW));
     $descripcionErr = filter_var($descripcion, FILTER_VALIDATE_REGEXP,
                     ['options' => ['regexp' => "/^[\w\s\-_áéíóúñ]{0,200}$/"]]) === false;
     $familiaCodigo = filter_input(INPUT_POST, 'familia_codigo', FILTER_UNSAFE_RAW);
-    $error = array_sum(compact(["nombreErr", "nombreCortoErr", "pvpErr", "descripcionErr", "errorDuplicadoNombreCorto"])) > 0;
+    $error = array_sum(compact(["nombreErr", "nombreCortoErr", "pvpErr", "descripcionErr"])) > 0;
     if (!$error) {
         try {
             $productoInsertado = insertarProducto($bd, $nombre, $nombreCorto, $pvp, $familiaCodigo, $descripcion);
         } catch (PDOException $ex) {
+            if ($ex->getcode() == 23000) { // Clave duplicada
+                $errorDuplicadoNombreCorto = true;
+            }
             error_log("Error al crear el producto " . $ex->getMessage());
             $productoInsertado = false;
         }
     }
 }
-if ($error ?? true) {
+if ($errorDuplicadoNombreCorto ?? $error ?? true) {
     try {
         $familias = consultarFamilias($bd);
     } catch (PDOException $ex) {
@@ -76,7 +70,7 @@ $bd = null;
             <?php if ($productoInsertado ?? false): ?>
                 <h3 class="text-center mt-2 fw-bold">Producto creado con éxito</h3>
                 <a href="index.php" class="btn btn-warning">Volver</a>
-            <?php elseif (!($productoInsertado ?? true)): ?>
+            <?php elseif (!isset($errorDuplicadoNombreCorto) && !($productoInsertado ?? true)): ?>
                 <h3 class="text-center mt-2 fw-bold">Ha habido un problema para crear el producto</h3>
             <?php else: ?>
                 <form name="crear" method="POST" action="<?= $_SERVER['PHP_SELF'] ?>">
@@ -96,10 +90,13 @@ $bd = null;
                                    id="nombre_corto" placeholder="Nombre Corto"
                                    name="nombre_corto" value="<?= htmlspecialchars($nombreCorto ?? '', ENT_NOQUOTES, 'UTF-8') ?>">
                             <div class="invalid-feedback">
-                                <p><?= match (true){
-                                    $nombreCortoErr ?? true => NOMBRE_CORTO_INVALIDO,
-                                    $errorDuplicadoNombreCorto ?? false => NOMBRE_CORTO_DUPLICADO,
-                                    default => ''} ?></p>
+                                <p><?=
+                                    match (true) {
+                                        $nombreCortoErr ?? true => NOMBRE_CORTO_INVALIDO,
+                                        $errorDuplicadoNombreCorto ?? false => NOMBRE_CORTO_DUPLICADO,
+                                        default => ''
+                                    }
+                                    ?></p>
                             </div>
                         </div>
                     </div>
