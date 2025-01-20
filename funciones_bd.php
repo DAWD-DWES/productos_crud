@@ -113,22 +113,3 @@ function modificarProducto(PDO $bd, string $productoId, string $nombre, string $
     $stmtModificarProducto = null;
     return $resultado;
 }
-
-/**
- * existeNombreCortoProducto comprueba que el nombre corto no exista
- * 
- * @param PDO $bd
- * @param string $nombreCorto
- * @return bool
- */
-function existeNombreCortoProducto(PDO $bd, string $nombreCorto, int $id = null): bool {
-    $sqlExisteNombreCortoProducto = "select 1 from productos where nombre_corto = :nombre_corto " . ($id ? 'and id != :id' : '') . " LIMIT 1;";
-    $stmtExisteNombreCortoProducto = $bd->prepare($sqlExisteNombreCortoProducto);
-    $params = [':nombre_corto' => $nombreCorto];
-    if ($id) {
-        $params[':id'] = $id;
-    }
-    $stmtExisteNombreCortoProducto->execute($params);
-    $existe = (bool) $stmtExisteNombreCortoProducto->fetch();
-    return $existe;
-}
