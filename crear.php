@@ -92,11 +92,14 @@ $bd = null;
                         </div>
                         <div class="col-md-6 align-items-center mb-3">
                             <label for="nombre_corto" class="form-label">Nombre Corto: </label>
-                            <input type="text" class="form-control <?= (isset($nombreCortoErr) ? (($errorDuplicadoNombreCorto ?? $nombreCortoErr ?? false) ? "is-invalid" : "is-valid") : "") ?>" 
+                            <input type="text" class="form-control <?= (isset($nombreCortoErr) ? (($nombreCortoErr || ($errorDuplicadoNombreCorto ?? false)) ? "is-invalid" : "is-valid") : "") ?>"
                                    id="nombre_corto" placeholder="Nombre Corto"
                                    name="nombre_corto" value="<?= htmlspecialchars($nombreCorto ?? '', ENT_NOQUOTES, 'UTF-8') ?>">
                             <div class="invalid-feedback">
-                                <p><?= isset($errorDuplicadoNombreCorto) ? NOMBRE_CORTO_DUPLICADO : (($nombreCortoErr ?? true) ? NOMBRE_CORTO_INVALIDO : '') ?></p>
+                                <p><?= match (true){
+                                    $nombreCortoErr ?? true => NOMBRE_CORTO_INVALIDO,
+                                    $errorDuplicadoNombreCorto ?? false => NOMBRE_CORTO_DUPLICADO,
+                                    default => ''} ?></p>
                             </div>
                         </div>
                     </div>
