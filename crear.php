@@ -75,9 +75,10 @@ $bd = null;
             <?php if ($productoInsertado ?? false): ?>
                 <h3 class="text-center mt-2 fw-bold">Producto creado con éxito</h3>
                 <a href="index.php" class="btn btn-warning">Volver</a>
-            <?php elseif (!isset($errorDuplicadoNombreCorto) && !($productoInsertado ?? true)): ?>
-                <h3 class="text-center mt-2 fw-bold">Ha habido un problema para crear el producto</h3>
             <?php else: ?>
+                <?php if (!isset($errorDuplicadoNombreCorto) && !($productoInsertado ?? true)): ?>
+                    <h3 class="text-center mt-2 fw-bold">Ha habido un problema para crear el producto</h3>
+                <?php endif ?>
                 <form name="crear" method="POST" action="<?= $_SERVER['PHP_SELF'] ?>">
                     <div class="row g-3">
                         <div class="col-md-6 align-items-center mb-3">
@@ -96,12 +97,12 @@ $bd = null;
                                    name="nombre_corto" value="<?= htmlspecialchars($nombreCorto ?? '', ENT_NOQUOTES, 'UTF-8') ?>">
                             <div class="invalid-feedback">
                                 <p><?=
-            match (true) {
-                $nombreCortoErr ?? false => NOMBRE_CORTO_INVALIDO,
-                $errorDuplicadoNombreCorto ?? false => NOMBRE_CORTO_DUPLICADO,
-                default => ''
-            }
-                ?></p>
+                                    match (true) {
+                                        $nombreCortoErr ?? false => NOMBRE_CORTO_INVALIDO,
+                                        $errorDuplicadoNombreCorto ?? false => NOMBRE_CORTO_DUPLICADO,
+                                        default => ''
+                                    }
+                                    ?></p>
                             </div>
                         </div>
                     </div>
@@ -120,8 +121,8 @@ $bd = null;
                                 <?php foreach ($familias as $familia): ?>
                                     <option value='<?= $familia->cod ?>' 
                                             <?= (isset($familiaCodigo) && $familia->cod == $familiaCodigo) ? "selected" : "" ?>>
-                                            <?= $familia->nombre ?></option>
-                                    <?php endforeach ?>
+                                        <?= $familia->nombre ?></option>
+                                <?php endforeach ?>
                             </select>
                         </div>
                     </div>

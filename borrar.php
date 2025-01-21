@@ -1,7 +1,5 @@
 <?php
 if (!filter_has_var(INPUT_POST, 'borrar')) {
-    //si no me llega el código del producto a borrar
-    //nos vamos a index.php
     header('Location:index.php');
     die;
 }
