@@ -13,9 +13,9 @@ define('NOMBRE_CORTO_DUPLICADO', '**Nombre corto duplicado');
 define('PVP_INVALIDO', '**PVP inválido');
 define('DESCRIPCION_INVALIDO', '**Descripción inválida');
 
-define("REGEXP_NOMBRE", "/^[\w\s\-_áéíóúñ]{2,100}$/");
-define("REGEXP_NOMBRE_CORTO", "/^[a-zA-Z0-9áéíóúñ]{2,15}$/");
-define("REGEXP_DESCRIPCION", "/^[\s\S]{0,500}$/");
+define("REGEXP_NOMBRE", "/^[\w\s\-_áéíóúñ.,;:!?'(){}[\]+]{2,100}$/");
+define("REGEXP_NOMBRE_CORTO", "/^[\w\s\-_áéíóúñ.,;:!?'(){}[\]]{2,15}$/");
+define("REGEXP_DESCRIPCION", "/^[\s\S]*$/");
 
 if (filter_has_var(INPUT_POST, 'crear')) {
 //recogemos los datos del formulario
